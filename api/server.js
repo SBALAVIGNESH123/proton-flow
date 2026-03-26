@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { healthCheck, initializeStreams } = require('./services/proton');
 const { startPolling } = require('./services/alertEngine');
+const { startPgProxy } = require('./pgProxy');
 const ingestRoutes = require('./routes/ingest');
 const queryRoutes = require('./routes/query');
 const alertRoutes = require('./routes/alerts');
@@ -33,7 +34,6 @@ app.listen(PORT, () => {
     ╚══════════════════════════════════════════╝
     `);
 
-    // Wait for Proton to be ready, then initialize streams
     async function waitForProton() {
         let retries = 0;
         while (retries < 30) {
@@ -42,6 +42,7 @@ app.listen(PORT, () => {
                 console.log('🔗 Proton engine connected');
                 await initializeStreams();
                 startPolling(15000);
+                startPgProxy();
                 return;
             }
             retries++;

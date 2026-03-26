@@ -16,6 +16,7 @@ services:
     container_name: protonflow-api
     ports:
       - "4000:4000"
+      - "5432:5432"
     environment:
       - PROTON_HOST=proton
       - PROTON_PORT=3218
