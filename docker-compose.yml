@@ -1,0 +1,46 @@
+services:
+  proton:
+    image: ghcr.io/timeplus-io/proton:latest
+    container_name: protonflow-engine
+    ports:
+      - "8123:8123"
+      - "3218:3218"
+      - "9000:9000"
+    volumes:
+      - proton-data:/var/lib/proton
+    networks:
+      - protonflow
+
+  api:
+    build: ./api
+    container_name: protonflow-api
+    ports:
+      - "4000:4000"
+    environment:
+      - PROTON_HOST=proton
+      - PROTON_PORT=3218
+      - NODE_ENV=production
+    depends_on:
+      - proton
+    restart: on-failure
+    networks:
+      - protonflow
+
+  web:
+    build: ./web
+    container_name: protonflow-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - api
+    networks:
+      - protonflow
+
+volumes:
+  proton-data:
+
+networks:
+  protonflow:
+    driver: bridge
